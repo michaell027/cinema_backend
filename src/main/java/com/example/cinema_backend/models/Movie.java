@@ -33,11 +33,10 @@ public class Movie {
     @Column(name = "release_date")
     private String releaseDate;
 
-    public Movie(String title, String description, String duration, int rating, String genre, String releaseDate) {
+    public Movie(String title, String description, String duration, String genre, String releaseDate) {
         this.title = title;
         this.description = description;
         this.duration = duration;
-        this.rating = rating;
         this.genre = genre;
         this.releaseDate = releaseDate;
     }

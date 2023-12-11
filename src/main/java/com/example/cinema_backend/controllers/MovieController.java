@@ -3,11 +3,10 @@ package com.example.cinema_backend.controllers;
 import com.example.cinema_backend.models.Movie;
 import com.example.cinema_backend.repositories.MovieRepository;
 import com.example.cinema_backend.utils.MovieUtils;
+import com.google.gson.Gson;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 
@@ -41,6 +40,18 @@ public class MovieController {
             return ResponseEntity.status(404).body(("No movie found"));
         }
         return ResponseEntity.status(200).body(movieUtils.toJson(movie));
+    }
+
+    @PostMapping("/movies/add")
+    public ResponseEntity<String> addMovie(@RequestBody Movie movie) {
+        if (movieRepository.findByTitle(movie.getTitle()) != null) {
+            return ResponseEntity.status(409).body(movieUtils.toJson("Movie already exists"));
+        } else if (movie.getTitle().isEmpty() || movie.getDescription().isEmpty() || movie.getDuration().isEmpty() || movie.getGenre().isEmpty() || movie.getReleaseDate().isEmpty()) {
+            return ResponseEntity.status(400).body(movieUtils.toJson("Missing movie information"));
+        }
+        movieRepository.save(movie);
+        Gson gson = new Gson();
+        return ResponseEntity.status(200).body(gson.toJson("Movie added"));
     }
 
     private String encodePassword(String password) {
