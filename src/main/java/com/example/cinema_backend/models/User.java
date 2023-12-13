@@ -3,6 +3,9 @@ package com.example.cinema_backend.models;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -35,4 +38,10 @@ public class User {
     @Column(name="role")
     @Enumerated(EnumType.STRING)
     private Role role;
+
+
+    public User (String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
 }

@@ -6,20 +6,20 @@ import com.example.cinema_backend.models.MovieWithSessions;
 import com.example.cinema_backend.models.SessionTime;
 import com.example.cinema_backend.repositories.MovieSessionRepository;
 import com.example.cinema_backend.utils.MovieUtils;
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/movies-sessions")
 public class MovieSessionController {
 
     @Autowired
@@ -27,18 +27,43 @@ public class MovieSessionController {
 
     private MovieUtils movieUtils = new MovieUtils();
 
-    @GetMapping("/movies/today")
+    @GetMapping("/today")
     public ResponseEntity<String> getTodayMovies() {
-        LocalDateTime startOfDay = LocalDateTime.now().with(LocalTime.MIN);
-        LocalDateTime endOfDay = LocalDateTime.now().with(LocalTime.MAX);
+        List <MovieWithSessions> moviesWithSessions = getMoviesSessionsByDate(LocalDate.now().toString());
 
-        List<MovieSession> sessions = movieSessionRepository.findByStartTimeBetween(startOfDay, endOfDay);
-
-        if (sessions.isEmpty()) {
-            return ResponseEntity.status(404).body(movieUtils.toJson("No movies found"));
+        if (moviesWithSessions.isEmpty()) {
+            return ResponseEntity.status(404).body("No movies found");
         }
 
+        return ResponseEntity.status(200).body(movieUtils.toJson(moviesWithSessions));
+    }
+
+    @GetMapping("/{date}")
+    public ResponseEntity<String> getMoviesByDate(@PathVariable String date) {
+
+        List <MovieWithSessions> moviesWithSessions;
+
+        moviesWithSessions = getMoviesSessionsByDate(date);
+
+        if (moviesWithSessions.isEmpty()) {
+            Gson gson = new Gson();
+            return ResponseEntity.status(404).body(gson.toJson("No movies found"));
+        }
+
+        return ResponseEntity.status(200).body(movieUtils.toJson(moviesWithSessions));
+    }
+
+
+    public List<MovieWithSessions> getMoviesSessionsByDate(String date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate localDate = LocalDate.parse(date, formatter);
+
+        LocalDateTime startOfDay = localDate.atStartOfDay();
+        LocalDateTime endOfDay = localDate.atTime(LocalTime.MAX);
+
         List <MovieWithSessions> moviesWithSessions = new ArrayList<>();
+
+        List<MovieSession> sessions = movieSessionRepository.findByStartTimeBetween(startOfDay, endOfDay);
 
         for (MovieSession session : sessions) {
             Movie movie = session.getMovie();
@@ -64,9 +89,8 @@ public class MovieSessionController {
                     moviesWithSessions.add(movieWithSessions);
                 }
             }
-    }
-
-            return ResponseEntity.status(200).body(movieUtils.toJson(moviesWithSessions));
         }
 
+        return moviesWithSessions;
+    }
 }

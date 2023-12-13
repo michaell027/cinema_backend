@@ -5,18 +5,16 @@ import com.example.cinema_backend.repositories.MovieRepository;
 import com.example.cinema_backend.utils.MovieUtils;
 import com.google.gson.Gson;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/movies")
 public class MovieController {
 
     private MovieRepository movieRepository;
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     private MovieUtils movieUtils = new MovieUtils();
 
@@ -24,7 +22,7 @@ public class MovieController {
         this.movieRepository = movieRepository;
     }
 
-    @GetMapping("/movies")
+    @GetMapping("/all")
     public ResponseEntity<String> getMovies() {
         Collection<Movie> movies = movieRepository.findAll();
         if (movies.isEmpty()) {
@@ -33,7 +31,7 @@ public class MovieController {
         return ResponseEntity.status(200).body(movieUtils.toJson(movies));
     }
 
-    @GetMapping("/movies/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<String> getMovieById(long id) {
         Movie movie = movieRepository.findById(id);
         if (movie == null) {
@@ -42,7 +40,7 @@ public class MovieController {
         return ResponseEntity.status(200).body(movieUtils.toJson(movie));
     }
 
-    @PostMapping("/movies/add")
+    @PostMapping("/add")
     public ResponseEntity<String> addMovie(@RequestBody Movie movie) {
         if (movieRepository.findByTitle(movie.getTitle()) != null) {
             return ResponseEntity.status(409).body(movieUtils.toJson("Movie already exists"));
@@ -52,13 +50,5 @@ public class MovieController {
         movieRepository.save(movie);
         Gson gson = new Gson();
         return ResponseEntity.status(200).body(gson.toJson("Movie added"));
-    }
-
-    private String encodePassword(String password) {
-        return bCryptPasswordEncoder.encode(password);
-    }
-
-    private boolean isPasswordValid(String password, String encodedPassword) {
-        return bCryptPasswordEncoder.matches(password, encodedPassword);
     }
 }
