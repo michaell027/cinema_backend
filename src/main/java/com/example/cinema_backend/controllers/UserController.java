@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api")
@@ -31,7 +34,6 @@ public class UserController {
 
     @PostMapping("/users/register")
     public ResponseEntity<String> registerUser(@RequestBody User user) {
-        System.out.println(user.getEmail());
         User foundUser = userRepository.findByEmail(user.getEmail());
         if (foundUser != null) {
             return ResponseEntity.status(409).body("User already exists");
@@ -44,17 +46,27 @@ public class UserController {
 
     @PostMapping("/users/login")
     public ResponseEntity<String> loginUser(@RequestBody User user) {
+        Gson gson = new Gson();
+        Map<String, String> jsonResponse = new HashMap<>();
+
         User foundUser = userRepository.findByEmail(user.getEmail());
         if (foundUser == null) {
-            return ResponseEntity.status(404).body("User not found");
+            jsonResponse.put("message", "User not found");
+            return ResponseEntity.status(404).body(gson.toJson(jsonResponse));
         } else if (!isPasswordValid(user.getPassword(), foundUser.getPassword())) {
-            return ResponseEntity.status(401).body("Invalid password");
+            jsonResponse.put("message", "Invalid password");
+            return ResponseEntity.status(401).body(gson.toJson(jsonResponse));
+        } else if (tokenService.hasToken(foundUser.getId())) {
+            jsonResponse.put("message", "User already logged in");
+            return ResponseEntity.status(200).body(gson.toJson(jsonResponse));
         } else {
             String token = tokenGenerator.generateToken();
             tokenService.storeToken(foundUser.getId(), token);
-            Gson gson = new Gson();
-            String json = gson.toJson("Authorization: " + token);
-            return ResponseEntity.status(200).body(json);
+
+            jsonResponse.put("token", token);
+            jsonResponse.put("username", foundUser.getFirstName());
+            jsonResponse.put("role", foundUser.getRole().toString());
+            return ResponseEntity.status(200).body(gson.toJson(jsonResponse));
         }
     }
 
