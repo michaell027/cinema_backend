@@ -31,6 +31,7 @@ public class UserController {
 
     @PostMapping("/users/register")
     public ResponseEntity<String> registerUser(@RequestBody User user) {
+        System.out.println(user.getEmail());
         User foundUser = userRepository.findByEmail(user.getEmail());
         if (foundUser != null) {
             return ResponseEntity.status(409).body("User already exists");
