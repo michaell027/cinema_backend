@@ -32,7 +32,8 @@ public class MovieSessionController {
         List <MovieWithSessions> moviesWithSessions = getMoviesSessionsByDate(LocalDate.now().toString());
 
         if (moviesWithSessions.isEmpty()) {
-            return ResponseEntity.status(404).body("No movies found");
+            Gson gson = new Gson();
+            return ResponseEntity.status(404).body(gson.toJson("No movies found"));
         }
 
         return ResponseEntity.status(200).body(movieUtils.toJson(moviesWithSessions));
@@ -47,7 +48,7 @@ public class MovieSessionController {
 
         if (moviesWithSessions.isEmpty()) {
             Gson gson = new Gson();
-            return ResponseEntity.status(404).body(gson.toJson("No movies found"));
+            return ResponseEntity.status(404).body(gson.toJson("No movies found for " + date));
         }
 
         return ResponseEntity.status(200).body(movieUtils.toJson(moviesWithSessions));

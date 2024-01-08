@@ -47,21 +47,20 @@ public class UserController {
     @PostMapping("/users/login")
     public ResponseEntity<String> loginUser(@RequestBody User user) {
         Gson gson = new Gson();
-        Map<String, String> jsonResponse = new HashMap<>();
 
         User foundUser = userRepository.findByEmail(user.getEmail());
         if (foundUser == null) {
-            jsonResponse.put("message", "User not found");
-            return ResponseEntity.status(404).body(gson.toJson(jsonResponse));
+            return ResponseEntity.status(404).body(gson.toJson("User not found"));
         } else if (!isPasswordValid(user.getPassword(), foundUser.getPassword())) {
-            jsonResponse.put("message", "Invalid password");
-            return ResponseEntity.status(401).body(gson.toJson(jsonResponse));
-        } else if (tokenService.hasToken(foundUser.getId())) {
-            jsonResponse.put("message", "User already logged in");
-            return ResponseEntity.status(200).body(gson.toJson(jsonResponse));
-        } else {
+            return ResponseEntity.status(401).body(gson.toJson("Invalid password"));
+        }
+//        else if (tokenService.hasToken(foundUser.getId())) {
+//            return ResponseEntity.status(402).body(gson.toJson("User already logged in"));
+//        }
+        else {
             String token = tokenGenerator.generateToken();
             tokenService.storeToken(foundUser.getId(), token);
+            Map<String, String> jsonResponse = new HashMap<>();
 
             jsonResponse.put("token", token);
             jsonResponse.put("username", foundUser.getFirstName());
