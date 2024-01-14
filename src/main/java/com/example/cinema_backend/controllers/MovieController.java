@@ -24,7 +24,7 @@ public class MovieController {
         this.movieRepository = movieRepository;
     }
 
-    private TokenService tokenService = new TokenService();
+    private TokenService tokenService = TokenService.getInstance();
 
     private UserRepository userRepository;
 
@@ -47,12 +47,8 @@ public class MovieController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<String> addMovie(@RequestHeader String token, @RequestBody Movie movie) {
-        if (token.isEmpty() || token.isBlank() || token == null) {
-            return ResponseEntity.status(401).body(movieUtils.toJson("Unauthorized"));
-        }
-        Long userId = tokenService.getUserId(token);
-        if (userId == null) {
+    public ResponseEntity<String> addMovie(@RequestHeader("Authorization") String token, @RequestBody Movie movie) {
+        if (!tokenService.isTokenValid(token)) {
             return ResponseEntity.status(401).body(movieUtils.toJson("Unauthorized"));
         }
 

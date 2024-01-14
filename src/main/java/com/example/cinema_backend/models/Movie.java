@@ -37,6 +37,7 @@ public class Movie {
         this.title = title;
         this.description = description;
         this.duration = duration;
+        this.rating = 0;
         this.genre = genre;
         this.releaseDate = releaseDate;
     }

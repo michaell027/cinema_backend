@@ -20,7 +20,7 @@ public class UserController {
 
     private UserRepository userRepository;
     private TokenGenerator tokenGenerator = new TokenGenerator();
-    private TokenService tokenService = new TokenService();
+    private TokenService tokenService = TokenService.getInstance();
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;

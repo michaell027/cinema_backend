@@ -1,10 +1,26 @@
 package com.example.cinema_backend.services;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TokenService {
 
-    private ConcurrentHashMap<Long, String> userTokens = new ConcurrentHashMap<>();
+    private static TokenService instance;
+
+    private final Map<Long, String> userTokens;
+
+    private TokenService() {
+        userTokens = new ConcurrentHashMap<>();
+    }
+
+    public static synchronized TokenService getInstance() {
+        if (instance == null) {
+            instance = new TokenService();
+        }
+        return instance;
+    }
 
     /**
      * Stores the token for a specific user.
@@ -13,6 +29,7 @@ public class TokenService {
      */
     public void storeToken(Long userId, String token) {
         userTokens.put(userId, token);
+        System.out.println(userTokens);
     }
 
     /**
@@ -51,22 +68,20 @@ public class TokenService {
     }
 
     public boolean isTokenValid(String token) {
-        for (Long userId : userTokens.keySet()) {
-            if (userTokens.get(userId).equals(token)) {
-                return true;
-            }
-        }
-        return false;
+        return userTokens.containsValue(token);
     }
 
-    public boolean isTokenValid(Long userId, String token) {
-        for (Long id : userTokens.keySet()) {
-            if (id.equals(userId) && userTokens.get(id).equals(token)) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    public boolean isTokenValid(String token) {
+//        System.out.println(userTokens);
+//        Iterator it = userTokens.entrySet().iterator();
+//        while (it.hasNext()) {
+//            Map.Entry pair = (Map.Entry)it.next();
+//            if (pair.getValue().equals(token)) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     public void removeToken(String token) {
         for (Long userId : userTokens.keySet()) {
