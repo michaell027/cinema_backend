@@ -8,17 +8,14 @@ import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/users")
 public class UserController {
 
     private UserRepository userRepository;
@@ -32,7 +29,7 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
-    @PostMapping("/users/register")
+    @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody User user) {
         User foundUser = userRepository.findByEmail(user.getEmail());
         if (foundUser != null) {
@@ -44,7 +41,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/users/login")
+    @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody User user) {
         Gson gson = new Gson();
 
@@ -54,9 +51,9 @@ public class UserController {
         } else if (!isPasswordValid(user.getPassword(), foundUser.getPassword())) {
             return ResponseEntity.status(401).body(gson.toJson("Invalid password"));
         }
-//        else if (tokenService.hasToken(foundUser.getId())) {
-//            return ResponseEntity.status(402).body(gson.toJson("User already logged in"));
-//        }
+        else if (tokenService.hasToken(foundUser.getId())) {
+            return ResponseEntity.status(402).body(gson.toJson("User already logged in"));
+        }
         else {
             String token = tokenGenerator.generateToken();
             tokenService.storeToken(foundUser.getId(), token);
@@ -66,6 +63,17 @@ public class UserController {
             jsonResponse.put("username", foundUser.getFirstName());
             jsonResponse.put("role", foundUser.getRole().toString());
             return ResponseEntity.status(200).body(gson.toJson(jsonResponse));
+        }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logoutUser(@RequestHeader("Authorization") String token) {
+        Gson gson = new Gson();
+        if (tokenService.isTokenValid(token)) {
+            tokenService.removeToken(tokenService.getUserId(token));
+            return ResponseEntity.status(200).body(gson.toJson("User logged out"));
+        } else {
+            return ResponseEntity.status(401).body(gson.toJson("Invalid token"));
         }
     }
 

@@ -40,4 +40,39 @@ public class TokenService {
     public boolean hasToken(Long userId) {
         return userTokens.containsKey(userId);
     }
+
+    public Long getUserId(String token) {
+        for (Long userId : userTokens.keySet()) {
+            if (userTokens.get(userId).equals(token)) {
+                return userId;
+            }
+        }
+        return null;
+    }
+
+    public boolean isTokenValid(String token) {
+        for (Long userId : userTokens.keySet()) {
+            if (userTokens.get(userId).equals(token)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isTokenValid(Long userId, String token) {
+        for (Long id : userTokens.keySet()) {
+            if (id.equals(userId) && userTokens.get(id).equals(token)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void removeToken(String token) {
+        for (Long userId : userTokens.keySet()) {
+            if (userTokens.get(userId).equals(token)) {
+                userTokens.remove(userId);
+            }
+        }
+    }
 }

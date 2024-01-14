@@ -2,6 +2,8 @@ package com.example.cinema_backend.controllers;
 
 import com.example.cinema_backend.models.Movie;
 import com.example.cinema_backend.repositories.MovieRepository;
+import com.example.cinema_backend.repositories.UserRepository;
+import com.example.cinema_backend.services.TokenService;
 import com.example.cinema_backend.utils.MovieUtils;
 import com.google.gson.Gson;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,10 @@ public class MovieController {
         this.movieRepository = movieRepository;
     }
 
+    private TokenService tokenService = new TokenService();
+
+    private UserRepository userRepository;
+
     @GetMapping("/all")
     public ResponseEntity<String> getMovies() {
         Collection<Movie> movies = movieRepository.findAll();
@@ -41,7 +47,15 @@ public class MovieController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<String> addMovie(@RequestBody Movie movie) {
+    public ResponseEntity<String> addMovie(@RequestHeader String token, @RequestBody Movie movie) {
+        if (token.isEmpty() || token.isBlank() || token == null) {
+            return ResponseEntity.status(401).body(movieUtils.toJson("Unauthorized"));
+        }
+        Long userId = tokenService.getUserId(token);
+        if (userId == null) {
+            return ResponseEntity.status(401).body(movieUtils.toJson("Unauthorized"));
+        }
+
         if (movieRepository.findByTitle(movie.getTitle()) != null) {
             return ResponseEntity.status(409).body(movieUtils.toJson("Movie already exists"));
         } else if (movie.getTitle().isEmpty() || movie.getDescription().isEmpty() || movie.getDuration().isEmpty() || movie.getGenre().isEmpty() || movie.getReleaseDate().isEmpty()) {
