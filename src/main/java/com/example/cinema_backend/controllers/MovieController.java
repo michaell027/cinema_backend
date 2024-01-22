@@ -38,7 +38,7 @@ public class MovieController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<String> getMovieById(long id) {
+    public ResponseEntity<String> getMovieById(@PathVariable int id) {
         Movie movie = movieRepository.findById(id);
         if (movie == null) {
             return ResponseEntity.status(404).body(("No movie found"));
@@ -60,5 +60,22 @@ public class MovieController {
         movieRepository.save(movie);
         Gson gson = new Gson();
         return ResponseEntity.status(200).body(gson.toJson("Movie added"));
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<String> editMovie(@PathVariable int id, @RequestBody Movie movie) {
+        Movie foundMovie = movieRepository.findById(id);
+        if (foundMovie == null) {
+            return ResponseEntity.status(404).body(movieUtils.toJson("Movie not found"));
+        } else if (movie.getTitle().isEmpty() || movie.getDescription().isEmpty() || movie.getDuration().isEmpty() || movie.getGenre().isEmpty() || movie.getReleaseDate().isEmpty()) {
+            return ResponseEntity.status(400).body(movieUtils.toJson("Missing movie information"));
+        }
+        foundMovie.setTitle(movie.getTitle());
+        foundMovie.setDescription(movie.getDescription());
+        foundMovie.setDuration(movie.getDuration());
+        foundMovie.setGenre(movie.getGenre());
+        foundMovie.setReleaseDate(movie.getReleaseDate());
+        movieRepository.save(foundMovie);
+        return ResponseEntity.status(200).body(movieUtils.toJson("Movie updated"));
     }
 }
