@@ -78,4 +78,14 @@ public class MovieController {
         movieRepository.save(foundMovie);
         return ResponseEntity.status(200).body(movieUtils.toJson("Movie updated"));
     }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteMovie(@PathVariable int id) {
+        Movie foundMovie = movieRepository.findById(id);
+        if (foundMovie == null) {
+            return ResponseEntity.status(404).body(movieUtils.toJson("Movie not found"));
+        }
+        movieRepository.delete(foundMovie);
+        return ResponseEntity.status(200).body(movieUtils.toJson("Movie deleted"));
+    }
 }

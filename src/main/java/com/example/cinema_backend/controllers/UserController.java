@@ -77,6 +77,16 @@ public class UserController {
         }
     }
 
+    @PostMapping("/check")
+    public ResponseEntity<String> checkUser(@RequestHeader("Authorization") String token) {
+        Gson gson = new Gson();
+        if (tokenService.isTokenValid(token)) {
+            return ResponseEntity.status(200).body(gson.toJson("User logged in"));
+        } else {
+            return ResponseEntity.status(401).body(gson.toJson("Invalid token"));
+        }
+    }
+
     private String encodePassword(String password) {
         return bCryptPasswordEncoder.encode(password);
     }
