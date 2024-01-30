@@ -8,11 +8,10 @@ import java.time.LocalDateTime;
 
 public class MovieUtils {
     public static String toJson(Object object) {
-        GsonBuilder builder = new GsonBuilder();
-        builder.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer());
-        Gson gson = builder.create();
-
+        Gson gson = new GsonBuilder()
+                .excludeFieldsWithoutExposeAnnotation()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer())
+                .create();
         return gson.toJson(object);
     }
-
 }

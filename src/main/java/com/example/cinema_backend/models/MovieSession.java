@@ -1,5 +1,6 @@
 package com.example.cinema_backend.models;
 
+import com.google.gson.annotations.Expose;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,22 +12,27 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor
 @Table(name = "movie_session")
+@ToString
 public class MovieSession {
+    @Expose
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "movie_id", nullable = false)
+    @JoinColumn(name = "movie_id", referencedColumnName = "id")
     private Movie movie;
 
+    @Expose
     @Column(name = "start_time")
     private LocalDateTime startTime;
 
+    @Expose
     @Column(name = "end_time")
     private LocalDateTime endTime;
 
+    @Expose
     @Column(name = "price")
     private BigDecimal price;
 

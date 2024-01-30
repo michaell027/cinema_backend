@@ -1,5 +1,6 @@
 package com.example.cinema_backend.controllers;
 
+import com.example.cinema_backend.models.Role;
 import com.example.cinema_backend.models.User;
 import com.example.cinema_backend.repositories.UserRepository;
 import com.example.cinema_backend.services.TokenService;
@@ -85,6 +86,24 @@ public class UserController {
         } else {
             return ResponseEntity.status(401).body(gson.toJson("Invalid token"));
         }
+    }
+
+    @GetMapping("/get-role")
+    public ResponseEntity<String> getRole (@RequestHeader("Authorization") String token) {
+        Gson gson = new Gson();
+        if (!tokenService.isTokenValid(token)) {
+            return ResponseEntity.status(401).body(gson.toJson("Invalid token"));
+        }
+        Long userId = tokenService.getUserId(token);
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return ResponseEntity.status(404).body(gson.toJson("User not found"));
+        }
+        Boolean isAdmin = user.getRole().equals(Role.ADMIN);
+        if (!isAdmin) {
+            return ResponseEntity.status(200).body(gson.toJson("USER"));
+        }
+        return ResponseEntity.status(200).body(gson.toJson("ADMIN"));
     }
 
     private String encodePassword(String password) {

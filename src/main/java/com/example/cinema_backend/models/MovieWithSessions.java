@@ -1,5 +1,6 @@
 package com.example.cinema_backend.models;
 
+import com.google.gson.annotations.Expose;
 import lombok.*;
 
 import java.util.List;
@@ -9,6 +10,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MovieWithSessions {
+    @Expose
     private Movie movie;
+    
+    @Expose
     private List<SessionTime> sessions;
 }

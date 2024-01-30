@@ -1,37 +1,53 @@
 package com.example.cinema_backend.models;
 
 import com.google.gson.Gson;
+import com.google.gson.annotations.Expose;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "movies")
+@ToString (exclude = "movieSessions")
 public class Movie {
+    @Expose
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
+    @Expose
     @Column(name = "title")
     private String title;
 
+    @Expose
     @Column(name = "description")
     private String description;
 
+    @Expose
     @Column(name = "duration")
     private String duration;
 
+    @Expose
     @Column(name = "rating")
     private int rating;
 
+    @Expose
     @Column(name = "genre")
     private String genre;
 
+    @Expose
     @Column(name = "release_date")
     private String releaseDate;
+
+    @Expose
+    @OneToMany(mappedBy = "movie", fetch = FetchType.LAZY)
+    private List<MovieSession> movieSessions;
+
 
     public Movie(String title, String description, String duration, String genre, String releaseDate) {
         this.title = title;
@@ -47,16 +63,4 @@ public class Movie {
         return gson.toJson(this);
     }
 
-    @Override
-    public String toString() {
-        return "Movie{" +
-                "id=" + id +
-                ", title=" + title +
-                ", description=" + description +
-                ", duration=" + duration +
-                ", rating=" + rating +
-                ", genre=" + genre +
-                ", releaseDate=" + releaseDate +
-                '}';
-    }
 }

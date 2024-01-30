@@ -6,6 +6,7 @@ import com.example.cinema_backend.repositories.UserRepository;
 import com.example.cinema_backend.services.TokenService;
 import com.example.cinema_backend.utils.MovieUtils;
 import com.google.gson.Gson;
+import io.swagger.v3.core.util.Json;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,6 +35,7 @@ public class MovieController {
         if (movies.isEmpty()) {
             return ResponseEntity.status(404).body(movieUtils.toJson("No movies found"));
         }
+        System.out.println(movies);
         return ResponseEntity.status(200).body(movieUtils.toJson(movies));
     }
 
