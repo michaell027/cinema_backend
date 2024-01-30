@@ -54,6 +54,15 @@ public class MovieSessionController {
         return ResponseEntity.status(200).body(movieUtils.toJson(moviesWithSessions));
     }
 
+    @PutMapping("/add/{id}")
+    public ResponseEntity<String> addMovieSession(@PathVariable long id, @RequestBody MovieSession movieSession) {
+        Movie movie = new Movie();
+        movie.setId(id);
+        movieSession.setMovie(movie);
+        movieSessionRepository.save(movieSession);
+        return ResponseEntity.status(200).body(movieUtils.toJson("Movie session added"));
+    }
+
 
     public List<MovieWithSessions> getMoviesSessionsByDate(String date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
