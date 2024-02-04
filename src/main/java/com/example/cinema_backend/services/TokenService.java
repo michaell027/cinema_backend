@@ -1,6 +1,10 @@
 package com.example.cinema_backend.services;
 
+import com.example.cinema_backend.models.User;
+import com.example.cinema_backend.repositories.UserRepository;
+
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TokenService {
@@ -8,6 +12,8 @@ public class TokenService {
     private static TokenService instance;
 
     private final Map<Long, String> userTokens;
+
+    UserRepository userRepository;
 
     private TokenService() {
         userTokens = new ConcurrentHashMap<>();
@@ -87,5 +93,18 @@ public class TokenService {
                 userTokens.remove(userId);
             }
         }
+    }
+
+    public boolean isAdmin(String token, UserRepository userRepository) {
+        Long userId = getUserId(token);
+        if (userId != null) {
+            Optional<User> user = userRepository.findById(userId);
+            if (user.isPresent()) {
+                if (!user.get().getRole().equals("admin")) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

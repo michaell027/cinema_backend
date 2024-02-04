@@ -5,6 +5,8 @@ import com.example.cinema_backend.models.MovieSession;
 import com.example.cinema_backend.models.MovieWithSessions;
 import com.example.cinema_backend.models.SessionTime;
 import com.example.cinema_backend.repositories.MovieSessionRepository;
+import com.example.cinema_backend.repositories.UserRepository;
+import com.example.cinema_backend.services.TokenService;
 import com.example.cinema_backend.utils.MovieUtils;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +29,16 @@ public class MovieSessionController {
 
     private MovieUtils movieUtils = new MovieUtils();
 
+    private TokenService tokenService = TokenService.getInstance();
+
+    @Autowired
+    private UserRepository userRepository;
+
     @GetMapping("/today")
-    public ResponseEntity<String> getTodayMovies() {
+    public ResponseEntity<String> getTodayMovies(@RequestHeader("Authorization") String token) {
+        if (!tokenService.isTokenValid(token)) {
+            return ResponseEntity.status(401).body(movieUtils.toJson("Unauthorized"));
+        }
         List <MovieWithSessions> moviesWithSessions = getMoviesSessionsByDate(LocalDate.now().toString());
 
         if (moviesWithSessions.isEmpty()) {
@@ -40,7 +50,10 @@ public class MovieSessionController {
     }
 
     @GetMapping("/{date}")
-    public ResponseEntity<String> getMoviesByDate(@PathVariable String date) {
+    public ResponseEntity<String> getMoviesByDate(@PathVariable String date, @RequestHeader("Authorization") String token) {
+        if (!tokenService.isTokenValid(token)) {
+            return ResponseEntity.status(401).body(movieUtils.toJson("Unauthorized"));
+        }
 
         List <MovieWithSessions> moviesWithSessions;
 
@@ -55,7 +68,13 @@ public class MovieSessionController {
     }
 
     @PutMapping("/add/{id}")
-    public ResponseEntity<String> addMovieSession(@PathVariable long id, @RequestBody MovieSession movieSession) {
+    public ResponseEntity<String> addMovieSession(@PathVariable long id, @RequestBody MovieSession movieSession, @RequestHeader("Authorization") String token) {
+        if (!tokenService.isTokenValid(token)) {
+            return ResponseEntity.status(401).body(movieUtils.toJson("Unauthorized"));
+        }
+        if (!tokenService.isAdmin(token, userRepository)) {
+            return ResponseEntity.status(403).body(movieUtils.toJson("Forbidden"));
+        }
         Movie movie = new Movie();
         movie.setId(id);
         movieSession.setMovie(movie);
@@ -102,5 +121,20 @@ public class MovieSessionController {
         }
 
         return moviesWithSessions;
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteMovieSession(@PathVariable long id, @RequestBody MovieSession movieSession, @RequestHeader("Authorization") String token) {
+        if (!tokenService.isTokenValid(token)) {
+            return ResponseEntity.status(401).body(movieUtils.toJson("Unauthorized"));
+        }
+        if (!tokenService.isAdmin(token, userRepository)) {
+            return ResponseEntity.status(403).body(movieUtils.toJson("Forbidden"));
+        }
+        Movie movie = new Movie();
+        movie.setId(id);
+        movieSession.setMovie(movie);
+        movieSessionRepository.delete(movieSession);
+        return ResponseEntity.status(200).body(movieUtils.toJson("Movie session deleted"));
     }
 }

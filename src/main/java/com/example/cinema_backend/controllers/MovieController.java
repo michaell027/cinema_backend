@@ -1,7 +1,9 @@
 package com.example.cinema_backend.controllers;
 
 import com.example.cinema_backend.models.Movie;
+import com.example.cinema_backend.models.MovieSession;
 import com.example.cinema_backend.repositories.MovieRepository;
+import com.example.cinema_backend.repositories.MovieSessionRepository;
 import com.example.cinema_backend.repositories.UserRepository;
 import com.example.cinema_backend.services.TokenService;
 import com.example.cinema_backend.utils.MovieUtils;
@@ -19,18 +21,27 @@ public class MovieController {
 
     private MovieRepository movieRepository;
 
+    private MovieSessionRepository movieSessionRepository;
+
     private MovieUtils movieUtils = new MovieUtils();
 
-    public MovieController(MovieRepository movieRepository) {
+    private UserRepository userRepository;
+
+
+    public MovieController(MovieRepository movieRepository, MovieSessionRepository movieSessionRepository, UserRepository userRepository) {
+        this.userRepository = userRepository;
+        this.movieSessionRepository = movieSessionRepository;
         this.movieRepository = movieRepository;
     }
 
     private TokenService tokenService = TokenService.getInstance();
 
-    private UserRepository userRepository;
 
     @GetMapping("/all")
-    public ResponseEntity<String> getMovies() {
+    public ResponseEntity<String> getMovies(@RequestHeader("Authorization") String token) {
+        if (!tokenService.isTokenValid(token)) {
+            return ResponseEntity.status(401).body(movieUtils.toJson("Unauthorized"));
+        }
         Collection<Movie> movies = movieRepository.findAll();
         if (movies.isEmpty()) {
             return ResponseEntity.status(404).body(movieUtils.toJson("No movies found"));
@@ -53,7 +64,9 @@ public class MovieController {
         if (!tokenService.isTokenValid(token)) {
             return ResponseEntity.status(401).body(movieUtils.toJson("Unauthorized"));
         }
-
+        if (!tokenService.isAdmin(token, userRepository)) {
+            return ResponseEntity.status(403).body(movieUtils.toJson("Forbidden"));
+        }
         if (movieRepository.findByTitle(movie.getTitle()) != null) {
             return ResponseEntity.status(409).body(movieUtils.toJson("Movie already exists"));
         } else if (movie.getTitle().isEmpty() || movie.getDescription().isEmpty() || movie.getDuration().isEmpty() || movie.getGenre().isEmpty() || movie.getReleaseDate().isEmpty()) {
@@ -65,7 +78,13 @@ public class MovieController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<String> editMovie(@PathVariable int id, @RequestBody Movie movie) {
+    public ResponseEntity<String> editMovie(@PathVariable int id, @RequestBody Movie movie, @RequestHeader("Authorization") String token) {
+        if (!tokenService.isTokenValid(token)) {
+            return ResponseEntity.status(401).body(movieUtils.toJson("Unauthorized"));
+        }
+        if (!tokenService.isAdmin(token, userRepository)) {
+            return ResponseEntity.status(403).body(movieUtils.toJson("Forbidden"));
+        }
         Movie foundMovie = movieRepository.findById(id);
         if (foundMovie == null) {
             return ResponseEntity.status(404).body(movieUtils.toJson("Movie not found"));
@@ -82,11 +101,22 @@ public class MovieController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteMovie(@PathVariable int id) {
+    public ResponseEntity<String> deleteMovie(@PathVariable int id, @RequestHeader("Authorization") String token) {
+        if (!tokenService.isTokenValid(token)) {
+            return ResponseEntity.status(401).body(movieUtils.toJson("Unauthorized"));
+        }
+        if (!tokenService.isAdmin(token, userRepository)) {
+            return ResponseEntity.status(403).body(movieUtils.toJson("Forbidden"));
+        }
         Movie foundMovie = movieRepository.findById(id);
         if (foundMovie == null) {
             return ResponseEntity.status(404).body(movieUtils.toJson("Movie not found"));
         }
+
+        for (MovieSession session : foundMovie.getMovieSessions()) {
+            movieSessionRepository.delete(session);
+        }
+
         movieRepository.delete(foundMovie);
         return ResponseEntity.status(200).body(movieUtils.toJson("Movie deleted"));
     }

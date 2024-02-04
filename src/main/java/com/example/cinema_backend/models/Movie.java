@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.List;
 
@@ -46,6 +48,7 @@ public class Movie {
 
     @Expose
     @OneToMany(mappedBy = "movie", fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<MovieSession> movieSessions;
 
 
