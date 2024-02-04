@@ -19,13 +19,13 @@ import java.util.Collection;
 @RequestMapping("/api/movies")
 public class MovieController {
 
-    private MovieRepository movieRepository;
+    private final MovieRepository movieRepository;
 
-    private MovieSessionRepository movieSessionRepository;
+    private final MovieSessionRepository movieSessionRepository;
 
-    private MovieUtils movieUtils = new MovieUtils();
+    private final MovieUtils movieUtils = new MovieUtils();
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
 
     public MovieController(MovieRepository movieRepository, MovieSessionRepository movieSessionRepository, UserRepository userRepository) {

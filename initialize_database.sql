@@ -55,31 +55,47 @@ CREATE TABLE `cinema`.`movie_session` (
     PRIMARY KEY (`id`),
     FOREIGN KEY (`movie_id`) REFERENCES `cinema`.movies(`id`));
 
+-- Sunday
 INSERT INTO `cinema`.`movie_session` (`movie_id`, `start_time`, `end_time`, `price`)
-VALUES (1, '2024-01-15 15:00:00', '2024-01-15 17:00:00', 12.50),
-       (2, '2024-01-15 18:00:00', '2024-01-15 19:30:00', 10.00),
-       (3, '2024-01-15 20:30:00', '2024-01-15 22:20:00', 13.00);
+VALUES (8, '2024-02-04 15:00:00', '2024-02-04 16:45:00', 11.00),
+       (1, '2024-02-04 17:30:00', '2024-02-04 19:40:00', 12.50),
+       (2, '2024-02-04 20:00:00', '2024-02-04 21:35:00', 10.00);
 
+-- Monday
 INSERT INTO `cinema`.`movie_session` (`movie_id`, `start_time`, `end_time`, `price`)
-VALUES (4, '2024-01-16 15:00:00', '2024-01-16 16:45:00', 11.00),
-       (5, '2024-01-16 17:30:00', '2024-01-16 19:40:00', 12.50),
-       (6, '2024-01-16 20:00:00', '2024-01-16 21:35:00', 10.00);
+VALUES (3, '2024-02-05 16:00:00', '2024-02-05 17:55:00', 13.00),
+       (4, '2024-02-05 18:30:00', '2024-02-05 20:10:00', 11.00),
+       (5, '2024-02-05 21:00:00', '2024-02-05 23:00:00', 15.00);
 
+-- Tuesday
 INSERT INTO `cinema`.`movie_session` (`movie_id`, `start_time`, `end_time`, `price`)
-VALUES (7, '2024-01-17 16:00:00', '2024-01-17 17:55:00', 13.00),
-       (8, '2024-01-17 18:30:00', '2024-01-17 20:10:00', 11.00),
-       (1, '2024-01-17 21:00:00', '2024-01-17 23:00:00', 15.00);
+VALUES (6, '2024-02-06 14:00:00', '2024-02-06 15:30:00', 10.00),
+       (7, '2024-02-06 16:30:00', '2024-02-06 18:20:00', 13.00),
+       (8, '2024-02-06 19:00:00', '2024-02-06 20:45:00', 11.00);
 
+-- Wednesday
 INSERT INTO `cinema`.`movie_session` (`movie_id`, `start_time`, `end_time`, `price`)
-VALUES (2, '2024-01-18 14:00:00', '2024-01-18 15:30:00', 10.00),
-       (3, '2024-01-18 16:30:00', '2024-01-18 18:20:00', 13.00),
-       (4, '2024-01-18 19:00:00', '2024-01-18 20:45:00', 11.00);
+VALUES (1, '2024-02-07 15:00:00', '2024-02-07 17:10:00', 12.50),
+       (2, '2024-02-07 18:00:00', '2024-02-07 19:35:00', 10.00),
+       (3, '2024-02-07 20:30:00', '2024-02-07 22:25:00', 13.00);
 
+-- Thursday
 INSERT INTO `cinema`.`movie_session` (`movie_id`, `start_time`, `end_time`, `price`)
-VALUES (5, '2024-01-19 15:00:00', '2024-01-19 17:10:00', 12.50),
-       (6, '2024-01-19 18:00:00', '2024-01-19 19:35:00', 10.00),
-       (7, '2024-01-19 20:30:00', '2024-01-19 22:25:00', 13.00);
+VALUES (4, '2024-02-08 15:00:00', '2024-02-08 16:45:00', 11.00),
+       (5, '2024-02-08 17:30:00', '2024-02-08 19:40:00', 12.50),
+       (6, '2024-02-08 20:00:00', '2024-02-08 21:35:00', 10.00);
 
+-- Friday
+INSERT INTO `cinema`.`movie_session` (`movie_id`, `start_time`, `end_time`, `price`)
+VALUES (7, '2024-02-09 16:00:00', '2024-02-09 17:55:00', 13.00),
+       (8, '2024-02-09 18:30:00', '2024-02-09 20:10:00', 11.00),
+       (1, '2024-02-09 21:00:00', '2024-02-09 23:00:00', 15.00);
+
+-- Saturday
+INSERT INTO `cinema`.`movie_session` (`movie_id`, `start_time`, `end_time`, `price`)
+VALUES (2, '2024-02-10 14:00:00', '2024-02-10 15:30:00', 10.00),
+       (3, '2024-02-10 16:30:00', '2024-02-10 18:20:00', 13.00),
+       (4, '2024-02-10 19:00:00', '2024-02-10 20:45:00', 11.00);
 
 
 DROP TABLE IF EXISTS `cinema`.`ticket`;
@@ -103,6 +119,12 @@ CREATE TABLE `cinema`.`users` (
     `last_name` VARCHAR(100) NOT NULL,
     `role` VARCHAR(100) NOT NULL,
     PRIMARY KEY (`id`));
+
+INSERT INTO `cinema`.`users` (`email`, `password`, `first_name`, `last_name`, `role`)
+VALUES ('admin@admin.com', '$2a$12$aq.uW1aDXg9kcgTHalb9reQb2vrhus5buwTgYPgYCcNAnfEKDQRQa', 'Admin', 'New', 'ADMIN');
+
+INSERT INTO `cinema`.`users` (`email`, `password`, `first_name`, `last_name`, `role`)
+VALUES ('michaela@gmail.com', '$2a$12$FAZQKbJBsUbXKwUiAcIXZOsPBqWsGE35SAoj24xBSDflkJ2LPmO1e', 'Michaela', 'Majorosova', 'USER');
 
 DROP TABLE IF EXISTS `cinema`.`order`;
 
